@@ -1,52 +1,35 @@
-const express = require('express');
+
+const express = require("express");
+
+
 const app = express();
-const port = 3020;
+const PORT = 4000;
 
-// Middleware to parse JSON
-app.use(express.json());
+app.use(express.json());  // middleware to parse JSON data
 
-// Sample data
-let users = [
-    { id: 1, name: "Miano", age: 20 },
-    { id: 2, name: "Shelmith", age: 25 }
+const items = [
+    {id: 1, name: 'jeans', type: 'trouser'},
+    {id: 2, name: 'shirts', type: 'top'}
 ];
 
-// GET all users
-app.get('/users', (req, res) => {
-    res.json(users);
-});
+// get
+app.get('/items', (req, res) => {
+    res.json(items);
+})
 
-// GET a single user by ID
-app.get('/users/:id', (req, res) => {
-    const user = users.find(u => u.id === parseInt(req.params.id));
-    user ? res.json(user) : res.status(404).json({ message: "User not found" });
-});
+//post
+app.post('/api/items', (req, res) => {
+    const newItem = req.body;
 
-// POST - Add a new user
-app.post('/users', (req, res) => {
-    const newUser = { id: users.length + 1, ...req.body };
-    users.push(newUser);
-    res.status(201).json(newUser);
-});
-
-// PUT - Update a user
-app.put('/users/:id', (req, res) => {
-    const user = users.find(u => u.id === parseInt(req.params.id));
-    if (user) {
-        Object.assign(user, req.body);
-        res.json(user);
-    } else {
-        res.status(404).json({ message: "User not found" });
+    if (!newItem.name || !newItem.type) {
+        return res.status(400).json({ error: "Name and type are required" });
     }
-});
 
-// DELETE - Remove a user
-app.delete('/users/:id', (req, res) => {
-    users = users.filter(u => u.id !== parseInt(req.params.id));
-    res.json({ message: "User deleted" });
-});
+    newItem.id = items.length + 1; // auto increment id
+    items.push(newItem);
+    res.status(201).json(newItem);
+})
 
-// Start the server
 app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
-});
+    console.log(`Server is running on http://localhost:${PORT}`)
+})
