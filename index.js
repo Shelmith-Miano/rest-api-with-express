@@ -3,7 +3,7 @@ const express = require("express");
 
 
 const app = express();
-const PORT = 4000;
+const port = 4000;
 
 app.use(express.json());  // middleware to parse JSON data
 
@@ -12,13 +12,15 @@ const items = [
     {id: 2, name: 'shirts', type: 'top'}
 ];
 
+
+app.route('/api/items')
 // get
-app.get('/items', (req, res) => {
+    .get((req, res) => {
     res.json(items);
 })
 
 //post
-app.post('/api/items', (req, res) => {
+    .post((req, res) => {
     const newItem = req.body;
 
     if (!newItem.name || !newItem.type) {
@@ -26,10 +28,10 @@ app.post('/api/items', (req, res) => {
     }
 
     newItem.id = items.length + 1; // auto increment id
-    items.push(newItem);
-    res.status(201).json(newItem);
+    items.push(newItem); // adds new item to the list
+    res.status(201).json(newItem); // return created item with status
 })
 
 app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${PORT}`)
-})
+    console.log(`Server is running on http://localhost:${port}`)
+});
