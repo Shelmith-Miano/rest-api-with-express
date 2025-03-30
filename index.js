@@ -1,79 +1,69 @@
 const express = require("express");
-
 const app = express();
 const port = 4000;
 
-app.use(express.json());  // Middleware to parse JSON data
+app.use(express.json()); // Middleware to parse JSON
 
-const items = [
-    { id: 1, name: 'jeans', type: 'trouser' },
-    { id: 2, name: 'shirts', type: 'top' }
+// Fixed expenses array with unique IDs
+const expenses = [
+    { id: 1, amount: 15000, description: "rent", category: "needs", date: "2025-03-29" },
+    { id: 2, amount: 15, description: "coffee", category: "wants", date: "2025-03-29" } // Changed ID and description for variety
 ];
 
-// GET all items
-app.get('/api/items', (req, res) => {
-    res.json(items);
+const findExpenseById = (id) => expenses.find((exp) => exp.id === parseInt(id));
+
+// GET all expenses
+app.get("/api/expenses", (req, res) => {
+    res.json(expenses);
 });
 
-// POST - Add a new item
-app.post('/api/items', (req, res) => {
-    const newItem = req.body;
-
-    if (!newItem.name || !newItem.type) {
-        return res.status(400).json({ error: "Name and type are required" });
-    }
-
-    newItem.id = items.length + 1; // Auto-increment ID
-    items.push(newItem); // Add new item to the list
-    res.status(201).json(newItem); // Return the created item
+// GET one expense by ID (Added this missing endpoint)
+app.get("/api/expenses/:id", (req, res) => {
+    const expense = findExpenseById(req.params.id);
+    if (!expense) return res.status(404).json({ error: "Expense not found" });
+    res.json(expense);
 });
 
-// PUT - Update an item (requires full update)
-app.put('/api/items/:id', (req, res) => {
-    const itemId = parseInt(req.params.id);
-    const updatedItem = req.body;
-
-    if (!updatedItem.name || !updatedItem.type) {
-        return res.status(400).json({ error: "Name and type are required" });
+// POST a new expense (Fixed this)
+app.post("/api/expenses", (req, res) => {
+    const { amount, description, category, date } = req.body; // Use req.body
+    if (!amount || !description || !category || !date) {
+        return res.status(400).json({ error: "All fields are required" });
     }
 
-    const itemIndex = items.findIndex(item => item.id === itemId);
-    if (itemIndex === -1) {
-        return res.status(404).json({ error: "Item not found" });
-    }
-
-    items[itemIndex] = { id: itemId, ...updatedItem };
-    res.json(items[itemIndex]);
+    const newExpense = {
+        id: expenses.length + 1,
+        amount: parseFloat(amount),
+        description,
+        category,
+        date,
+    };
+    expenses.push(newExpense);
+    res.status(201).json(newExpense);
 });
 
-// PATCH - Update only specific fields
-app.patch('/api/items/:id', (req, res) => {
-    const itemId = parseInt(req.params.id);
-    const updates = req.body;
+// PUT (update) an expense by ID
+app.put("/api/expenses/:id", (req, res) => {
+    const expense = findExpenseById(req.params.id);
+    if (!expense) return res.status(404).json({ error: "Expense not found" });
 
-    const item = items.find(item => item.id === itemId);
-    if (!item) {
-        return res.status(404).json({ error: "Item not found" });
-    }
+    const { amount, description, category, date } = req.body;
+    expense.amount = amount ? parseFloat(amount) : expense.amount;
+    expense.description = description || expense.description;
+    expense.category = category || expense.category;
+    expense.date = date || expense.date;
 
-    Object.assign(item, updates); // Merge updates into the existing object
-    res.json(item);
+    res.json(expense);
 });
 
-// DELETE - Remove an item
-app.delete('/api/items/:id', (req, res) => {
-    const itemId = parseInt(req.params.id);
-    const itemIndex = items.findIndex(item => item.id === itemId);
-
-    if (itemIndex === -1) {
-        return res.status(404).json({ error: "Item not found" });
-    }
-
-    const deletedItem = items.splice(itemIndex, 1); // Remove item from array
-    res.json({ message: "Item deleted", deletedItem });
+// DELETE an expense by ID
+app.delete("/api/expenses/:id", (req, res) => {
+    const index = expenses.findIndex((exp) => exp.id === parseInt(req.params.id));
+    if (index === -1) return res.status(404).json({ error: "Expense not found" });
+    expenses.splice(index, 1);
+    res.status(204).send(); // No content on successful delete
 });
 
-// Start Server
 app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
+    console.log(`Server running on http://localhost:${port}`);
 });

@@ -1,80 +1,92 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 
-function ItemList() {
-  const [items, setItems] = useState([]);
-  const [newItem, setNewItem] = useState({ name: '', category: '', color: '', lastWorn: '' });
+function ExpenseDetail() {
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const [expense, setExpense] = useState(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [updatedExpense, setUpdatedExpense] = useState({});
 
-  useEffect(() => {
-    fetchItems();
-  }, []);
+    useEffect(() => {
+        if (!id) return;
+        
+        fetch(`http://localhost:4000/api/expenses/${id}`)
+            .then((res) => {
+                if (!res.ok) throw new Error("Failed to fetch expense");
+                return res.json();
+            })
+            .then((data) => {
+                setExpense(data);
+                setUpdatedExpense(data);
+            })
+            .catch((err) => console.error("Error fetching expense:", err));
+    }, [id]);
 
-  const fetchItems = async () => {
-    const res = await fetch('http://localhost:5000/api/items');
-    const data = await res.json();
-    setItems(data);
-  };
+    const handleInputChange = (e) => {
+        setUpdatedExpense({ ...updatedExpense, [e.target.name]: e.target.value });
+    };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    await fetch('http://localhost:5000/api/items', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newItem),
-    });
-    setNewItem({ name: '', category: '', color: '', lastWorn: '' });
-    fetchItems();
-  };
+    const handleUpdate = () => {
+        fetch(`http://localhost:4000/api/expenses/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updatedExpense),
+        })
+            .then((res) => {
+                if (!res.ok) throw new Error("Failed to update expense");
+                return res.json();
+            })
+            .then((data) => {
+                setExpense(data);
+                setIsEditing(false);
+            })
+            .catch((err) => console.error("Error updating expense:", err));
+    };
 
-  return (
-    <div>
-      <h1>Wardrobe Manager</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Name"
-          value={newItem.name}
-          onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
-          required
-        />
-        <select
-          value={newItem.category}
-          onChange={(e) => setNewItem({ ...newItem, category: e.target.value })}
-          required
-        >
-          <option value="">Select Category</option>
-          <option value="Shirts">Shirts</option>
-          <option value="Pants">Pants</option>
-          <option value="Jackets">Jackets</option>
-          <option value="Shoes">Shoes</option>
-        </select>
-        <input
-          type="text"
-          placeholder="Color"
-          value={newItem.color}
-          onChange={(e) => setNewItem({ ...newItem, color: e.target.value })}
-          required
-        />
-        <input
-          type="date"
-          value={newItem.lastWorn}
-          onChange={(e) => setNewItem({ ...newItem, lastWorn: e.target.value })}
-        />
-        <button type="submit">Add Item</button>
-      </form>
+    const handleDelete = () => {
+        fetch(`http://localhost:4000/api/expenses/${id}`, { method: "DELETE" })
+            .then((res) => {
+                if (!res.ok) throw new Error("Failed to delete expense");
+                navigate("/");
+            })
+            .catch((err) => console.error("Error deleting expense:", err));
+    };
 
-      <h2>All Wardrobe Items</h2>
-      <ul>
-        {items.map((item) => (
-          <li key={item.id}>
-            <Link to={`/items/${item.id}`}>
-              {item.name} ({item.category}, {item.color})
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+    if (!expense) return <p className="text-center text-gray-500">Loading...</p>;
+
+    return (
+        <div className="container mx-auto p-4">
+            <h2 className="text-2xl font-bold mb-4">Expense Details</h2>
+            <div className="bg-white shadow-md rounded-lg p-6 max-w-md mx-auto">
+                {isEditing ? (
+                    <div className="space-y-4">
+                        <input type="number" name="amount" value={updatedExpense.amount || ""} onChange={handleInputChange} className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500" />
+                        <input type="text" name="description" value={updatedExpense.description || ""} onChange={handleInputChange} className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500" />
+                        <input type="text" name="category" value={updatedExpense.category || ""} onChange={handleInputChange} className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500" />
+                        <input type="date" name="date" value={updatedExpense.date || ""} onChange={handleInputChange} className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500" />
+                        <div className="flex space-x-2">
+                            <button onClick={handleUpdate} className="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700">Save</button>
+                            <button onClick={() => setIsEditing(false)} className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600">Cancel</button>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="space-y-2">
+                        <p><strong>ID:</strong> {expense.id}</p>
+                        <p><strong>Amount:</strong> ${expense.amount}</p>
+                        <p><strong>Description:</strong> {expense.description}</p>
+                        <p><strong>Category:</strong> {expense.category}</p>
+                        <p><strong>Date:</strong> {new Date(expense.date).toLocaleDateString()}</p>
+                        <div className="flex space-x-2 mt-4">
+                            <button onClick={() => setIsEditing(true)} className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">Edit</button>
+                            <button onClick={handleDelete} className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700">Delete</button>
+                        </div>
+                    </div>
+                )}
+            </div>
+            <button onClick={() => navigate("/")} className="mt-4 text-blue-600 hover:underline">Back to List</button>
+        </div>
+    );
 }
 
-export default ItemList;
+export default ExpenseDetail;
