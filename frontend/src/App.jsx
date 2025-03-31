@@ -1,16 +1,17 @@
-import React from 'react';
+import React from "react";
+
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Home from './components/Home';
-import ExpenseDetail from './components/ExpenseDetail';
-import './App.css';
+import RecipeList from './components/RecipeList';
+import RecipeDetail from './components/RecipeDetail';
+
 
 function App() {
   return (
     <Router>
-      <div className="App">
+      <div className="min-h-screen bg-gradient-to-br from-pink-100 to-pink-300">
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/items/:id" element={<ExpenseDetail />} />
+          <Route path="/" element={<RecipeList />} />
+          <Route path="/recipes/:id" element={<RecipeDetail />} />
         </Routes>
       </div>
     </Router>

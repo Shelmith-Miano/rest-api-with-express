@@ -1,69 +1,63 @@
-const express = require("express");
+const express = require('express');
+const cors = require('cors');
 const app = express();
-const port = 4000;
 
-app.use(express.json()); // Middleware to parse JSON
+const port = 4000; // Define port
 
-// Fixed expenses array with unique IDs
-const expenses = [
-    { id: 1, amount: 15000, description: "rent", category: "needs", date: "2025-03-29" },
-    { id: 2, amount: 15, description: "coffee", category: "wants", date: "2025-03-29" } // Changed ID and description for variety
+app.use(cors());
+app.use(express.json()); // Using body-parser built into Express
+
+// In-memory recipe storage (replace with database later if needed)
+let recipes = [
+  { id: 1, name: 'Chocolate Cake', ingredients: 'Flour, Sugar, Cocoa', instructions: 'Mix, bake at 350°F for 30 mins' },
+  { id: 2, name: 'Pasta Primavera', ingredients: 'Pasta, Veggies, Olive Oil', instructions: 'Boil pasta, sauté veggies' },
 ];
+let nextId = 3;
 
-const findExpenseById = (id) => expenses.find((exp) => exp.id === parseInt(id));
-
-// GET all expenses
-app.get("/api/expenses", (req, res) => {
-    res.json(expenses);
+// CRUD Endpoints
+// Read all recipes
+app.get('/recipes', (req, res) => {
+  res.json(recipes);
 });
 
-// GET one expense by ID (Added this missing endpoint)
-app.get("/api/expenses/:id", (req, res) => {
-    const expense = findExpenseById(req.params.id);
-    if (!expense) return res.status(404).json({ error: "Expense not found" });
-    res.json(expense);
+// Read single recipe
+app.get('/recipes/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const recipe = recipes.find(r => r.id === id);
+  if (!recipe) return res.status(404).json({ error: 'Recipe not found' });
+  res.json(recipe);
 });
 
-// POST a new expense (Fixed this)
-app.post("/api/expenses", (req, res) => {
-    const { amount, description, category, date } = req.body; // Use req.body
-    if (!amount || !description || !category || !date) {
-        return res.status(400).json({ error: "All fields are required" });
-    }
-
-    const newExpense = {
-        id: expenses.length + 1,
-        amount: parseFloat(amount),
-        description,
-        category,
-        date,
-    };
-    expenses.push(newExpense);
-    res.status(201).json(newExpense);
+// Create a recipe
+app.post('/recipes', (req, res) => {
+  const { name, ingredients, instructions } = req.body;
+  if (!name || !ingredients || !instructions) return res.status(400).json({ error: 'All fields required' });
+  const recipe = { id: nextId++, name, ingredients, instructions };
+  recipes.push(recipe);
+  res.status(201).json(recipe);
 });
 
-// PUT (update) an expense by ID
-app.put("/api/expenses/:id", (req, res) => {
-    const expense = findExpenseById(req.params.id);
-    if (!expense) return res.status(404).json({ error: "Expense not found" });
-
-    const { amount, description, category, date } = req.body;
-    expense.amount = amount ? parseFloat(amount) : expense.amount;
-    expense.description = description || expense.description;
-    expense.category = category || expense.category;
-    expense.date = date || expense.date;
-
-    res.json(expense);
+// Update a recipe
+app.put('/recipes/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const { name, ingredients, instructions } = req.body;
+  const recipe = recipes.find(r => r.id === id);
+  if (!recipe) return res.status(404).json({ error: 'Recipe not found' });
+  recipe.name = name || recipe.name;
+  recipe.ingredients = ingredients || recipe.ingredients;
+  recipe.instructions = instructions || recipe.instructions;
+  res.json(recipe);
 });
 
-// DELETE an expense by ID
-app.delete("/api/expenses/:id", (req, res) => {
-    const index = expenses.findIndex((exp) => exp.id === parseInt(req.params.id));
-    if (index === -1) return res.status(404).json({ error: "Expense not found" });
-    expenses.splice(index, 1);
-    res.status(204).send(); // No content on successful delete
+// Delete a recipe
+app.delete('/recipes/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const index = recipes.findIndex(r => r.id === id);
+  if (index === -1) return res.status(404).json({ error: 'Recipe not found' });
+  recipes.splice(index, 1);
+  res.status(204).send();
 });
 
-app.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}`);
+app.listen(port, () => { // Use 'port' (lowercase) to match the variable
+  console.log(`Server running on http://localhost:${port}`);
 });
