@@ -6,12 +6,13 @@ const sequelize = new Sequelize({
   logging: false,
 });
 
+
+//testing the connection
 const syncDatabase = async () => {
   try {
     await sequelize.authenticate();
     console.log('Database connected');
-    await sequelize.sync(); // Sync tables
-    console.log('Database synced');
+   
   } catch (error) {
     console.error('Database sync error:', error);
   }

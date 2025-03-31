@@ -43,27 +43,27 @@ function RecipeDetail() {
   if (!recipe) return <div className="text-center text-pink-950">Loading...</div>;
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="details">
       <button
         onClick={() => navigate('/')}
-        className="mb-6 bg-gradient-to-r from-pink-950 to-pink-300 text-white px-4 py-2 rounded-lg hover:from-pink-900 hover:to-pink-400 transition"
+        className="back"
       >
         Back to List
       </button>
 
       {isEditing ? (
-        <form onSubmit={handleUpdate} className="bg-white p-6 rounded-xl shadow-lg shadow-pink-950/50">
+        <form onSubmit={handleUpdate} className="bg-white ">
           <input
             type="text"
             value={editRecipe.name}
             onChange={(e) => setEditRecipe({ ...editRecipe, name: e.target.value })}
-            className="w-full p-3 mb-4 bg-pink-50 border border-pink-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-950"
+            className="w-full"
             required
           />
           <textarea
             value={editRecipe.ingredients}
             onChange={(e) => setEditRecipe({ ...editRecipe, ingredients: e.target.value })}
-            className="w-full p-3 mb-4 bg-pink-50 border border-pink-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-950"
+            className="w-full"
             rows="4"
             placeholder="Ingredients"
             required
@@ -71,29 +71,24 @@ function RecipeDetail() {
           <textarea
             value={editRecipe.instructions}
             onChange={(e) => setEditRecipe({ ...editRecipe, instructions: e.target.value })}
-            className="w-full p-3 mb-4 bg-pink-50 border border-pink-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-950"
+            className="w-full "
             rows="4"
             placeholder="Instructions"
             required
           />
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-pink-950 to-pink-300 text-white p-3 rounded-lg hover:from-pink-900 hover:to-pink-400 transition"
+            className="w-full "
           >
             Save Changes
           </button>
         </form>
       ) : (
-        <div className="bg-white p-6 rounded-xl shadow-lg shadow-pink-950/50">
-          <h1 className="text-3xl font-bold text-pink-950 mb-4">{recipe.name}</h1>
-          <p className="text-lg text-gray-700 mb-4"><strong>Ingredients:</strong> {recipe.ingredients}</p>
-          <p className="text-lg text-gray-700 mb-4"><strong>Instructions:</strong> {recipe.instructions}</p>
-          <button
-            onClick={() => setIsEditing(true)}
-            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
-          >
-            Edit Recipe
-          </button>
+        <div className="bg-white ">
+          <h1 className=" font-bold ">{recipe.name}</h1>
+          <p className="text-gray-700 "><strong>Ingredients:</strong> {recipe.ingredients}</p>
+          <p className="text-gray-700 "><strong>Instructions:</strong> {recipe.instructions}</p>
+         
         </div>
       )}
     </div>

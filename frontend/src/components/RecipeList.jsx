@@ -41,16 +41,16 @@ function RecipeList() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-4xl font-bold text-gray-900 mb-8 text-center">Recipe Manager</h1>
-      <form onSubmit={handleAdd} className="bg-white p-6 rounded-xl shadow-md mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="list">
+      <h1 className="title">Recipe Manager</h1>
+      
+      <form onSubmit={handleAdd} className="card">
+        <div className="input-group">
           <input
             type="text"
             placeholder="Recipe Name"
             value={newRecipe.name}
             onChange={(e) => setNewRecipe({ ...newRecipe, name: e.target.value })}
-            className="p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500"
             required
           />
           <input
@@ -58,7 +58,6 @@ function RecipeList() {
             placeholder="Ingredients"
             value={newRecipe.ingredients}
             onChange={(e) => setNewRecipe({ ...newRecipe, ingredients: e.target.value })}
-            className="p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500"
             required
           />
           <input
@@ -66,51 +65,29 @@ function RecipeList() {
             placeholder="Instructions"
             value={newRecipe.instructions}
             onChange={(e) => setNewRecipe({ ...newRecipe, instructions: e.target.value })}
-            className="p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500"
             required
           />
         </div>
-        <button
-          type="submit"
-          className="mt-4 w-full bg-indigo-600 text-white p-3 rounded-lg hover:bg-indigo-700 transition"
-        >
-          Add Recipe
-        </button>
+        <button type="submit" className="add-btn">Add Recipe</button>
       </form>
-
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      
+      <div className="recipe-grid">
         {recipes.map(recipe => (
-          <div key={recipe.id} className="bg-white p-5 rounded-xl shadow-lg border border-gray-200 hover:shadow-indigo-500/50 transition flex flex-col">
-            <div className="flex-1">
-              <h2 className="text-xl font-semibold text-indigo-700">{recipe.name}</h2>
-              <p className="text-sm text-gray-600 mt-2"><strong>Ingredients:</strong> {recipe.ingredients}</p>
-              <p className="text-sm text-gray-600 mt-2"><strong>Instructions:</strong> {recipe.instructions}</p>
-            </div>
-            <div className="mt-4 flex justify-between gap-2">
-              <Link
-                to={`/recipes/${recipe.id}`}
-                className="bg-indigo-600 text-white px-3 py-1 rounded-lg hover:bg-indigo-700 transition"
-              >
-                View
-              </Link>
-              <button
-                onClick={() => navigate(`/recipes/${recipe.id}`)}
-                className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 transition"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => handleDelete(recipe.id)}
-                className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition"
-              >
-                Delete
-              </button>
+          <div key={recipe.id} className="recipe-card">
+            <h2 className="recipe-title">{recipe.name}</h2>
+            <p className="recipe-text"><strong>Ingredients:</strong> {recipe.ingredients}</p>
+            <p className="recipe-text"><strong>Instructions:</strong> {recipe.instructions}</p>
+            <div className="button-group">
+              <button onClick={() => navigate(`/recipes/${recipe.id}`)} className="view-btn">View</button>
+              <button onClick={() => handleDelete(recipe.id)} className="delete-btn">Delete</button>
             </div>
           </div>
         ))}
       </div>
     </div>
   );
+  
+  
 }
 
 export default RecipeList;

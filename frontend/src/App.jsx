@@ -8,12 +8,12 @@ import RecipeDetail from './components/RecipeDetail';
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-gradient-to-br from-pink-100 to-pink-300">
+      
         <Routes>
           <Route path="/" element={<RecipeList />} />
           <Route path="/recipes/:id" element={<RecipeDetail />} />
         </Routes>
-      </div>
+      
     </Router>
   );
 }
