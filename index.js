@@ -1,63 +1,77 @@
 const express = require('express');
 const cors = require('cors');
-const app = express();
+const sequelize = require('./database'); // Import database connection
+const Recipe = require('./models/Recipe'); // Import model
 
-const port = 4000; // Define port
+const app = express();
+const port = 4000;
 
 app.use(cors());
-app.use(express.json()); // Using body-parser built into Express
+app.use(express.json());
 
-// In-memory recipe storage (replace with database later if needed)
-let recipes = [
-  { id: 1, name: 'Chocolate Cake', ingredients: 'Flour, Sugar, Cocoa', instructions: 'Mix, bake at 350°F for 30 mins' },
-  { id: 2, name: 'Pasta Primavera', ingredients: 'Pasta, Veggies, Olive Oil', instructions: 'Boil pasta, sauté veggies' },
-];
-let nextId = 3;
-
-// CRUD Endpoints
 // Read all recipes
-app.get('/recipes', (req, res) => {
+app.get('/recipes', async (req, res) => {
+  const recipes = await Recipe.findAll();
   res.json(recipes);
 });
 
 // Read single recipe
-app.get('/recipes/:id', (req, res) => {
-  const id = parseInt(req.params.id);
-  const recipe = recipes.find(r => r.id === id);
+app.get('/recipes/:id', async (req, res) => {
+  const recipe = await Recipe.findByPk(req.params.id);
   if (!recipe) return res.status(404).json({ error: 'Recipe not found' });
   res.json(recipe);
 });
 
 // Create a recipe
-app.post('/recipes', (req, res) => {
-  const { name, ingredients, instructions } = req.body;
-  if (!name || !ingredients || !instructions) return res.status(400).json({ error: 'All fields required' });
-  const recipe = { id: nextId++, name, ingredients, instructions };
-  recipes.push(recipe);
-  res.status(201).json(recipe);
+app.post('/recipes', async (req, res) => {
+  try {
+    const { name, ingredients, instructions } = req.body;
+    if (!name || !ingredients || !instructions) return res.status(400).json({ error: 'All fields required' });
+    const recipe = await Recipe.create({ name, ingredients, instructions });
+    res.status(201).json(recipe);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to create recipe' });
+  }
 });
 
-// Update a recipe
-app.put('/recipes/:id', (req, res) => {
-  const id = parseInt(req.params.id);
-  const { name, ingredients, instructions } = req.body;
-  const recipe = recipes.find(r => r.id === id);
-  if (!recipe) return res.status(404).json({ error: 'Recipe not found' });
-  recipe.name = name || recipe.name;
-  recipe.ingredients = ingredients || recipe.ingredients;
-  recipe.instructions = instructions || recipe.instructions;
-  res.json(recipe);
+// Update a recipe (PUT)
+app.put('/recipes/:id', async (req, res) => {
+  try {
+    const { name, ingredients, instructions } = req.body;
+    const recipe = await Recipe.findByPk(req.params.id);
+    if (!recipe) return res.status(404).json({ error: 'Recipe not found' });
+    await recipe.update({ name, ingredients, instructions });
+    res.json(recipe);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update recipe' });
+  }
+});
+
+// Patch (Partial Update)
+app.patch('/recipes/:id', async (req, res) => {
+  try {
+    const recipe = await Recipe.findByPk(req.params.id);
+    if (!recipe) return res.status(404).json({ error: 'Recipe not found' });
+    await recipe.update(req.body); // Update only provided fields
+    res.json(recipe);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update recipe' });
+  }
 });
 
 // Delete a recipe
-app.delete('/recipes/:id', (req, res) => {
-  const id = parseInt(req.params.id);
-  const index = recipes.findIndex(r => r.id === id);
-  if (index === -1) return res.status(404).json({ error: 'Recipe not found' });
-  recipes.splice(index, 1);
-  res.status(204).send();
+app.delete('/recipes/:id', async (req, res) => {
+  try {
+    const recipe = await Recipe.findByPk(req.params.id);
+    if (!recipe) return res.status(404).json({ error: 'Recipe not found' });
+    await recipe.destroy();
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete recipe' });
+  }
 });
 
-app.listen(port, () => { // Use 'port' (lowercase) to match the variable
+// Start server
+app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
