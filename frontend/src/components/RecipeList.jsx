@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+
 
 function RecipeList() {
   const [recipes, setRecipes] = useState([]);
   const [newRecipe, setNewRecipe] = useState({ name: '', ingredients: '', instructions: '' });
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetch('http://localhost:4000/recipes')
@@ -78,7 +77,7 @@ function RecipeList() {
             <p className="recipe-text"><strong>Ingredients:</strong> {recipe.ingredients}</p>
             <p className="recipe-text"><strong>Instructions:</strong> {recipe.instructions}</p>
             <div className="button-group">
-              <button onClick={() => navigate(`/recipes/${recipe.id}`)} className="view-btn">View</button>
+              <button className="view-btn" onClick={() => window.location.href = `/recipes/${recipe.id}`}>View</button>
               <button onClick={() => handleDelete(recipe.id)} className="delete-btn">Delete</button>
             </div>
           </div>
@@ -86,8 +85,6 @@ function RecipeList() {
       </div>
     </div>
   );
-  
-  
 }
 
 export default RecipeList;

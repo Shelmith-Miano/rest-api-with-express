@@ -1,13 +1,11 @@
-import React from 'react';
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 
 function RecipeDetail() {
   const { id } = useParams();
   const [recipe, setRecipe] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editRecipe, setEditRecipe] = useState({ name: '', ingredients: '', instructions: '' });
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetch(`http://localhost:4000/recipes/${id}`)
@@ -44,15 +42,8 @@ function RecipeDetail() {
 
   return (
     <div className="details">
-      <button
-        onClick={() => navigate('/')}
-        className="back"
-      >
-        Back to List
-      </button>
-
       {isEditing ? (
-        <form onSubmit={handleUpdate} className="bg-white ">
+        <form onSubmit={handleUpdate} className="bg-white">
           <input
             type="text"
             value={editRecipe.name}
@@ -71,26 +62,20 @@ function RecipeDetail() {
           <textarea
             value={editRecipe.instructions}
             onChange={(e) => setEditRecipe({ ...editRecipe, instructions: e.target.value })}
-            className="w-full "
+            className="w-full"
             rows="4"
             placeholder="Instructions"
             required
           />
-          <button
-            type="submit"
-            className="w-full "
-          >
-            Save Changes
-          </button>
         </form>
       ) : (
-        <div className="bg-white ">
-          <h1 className=" font-bold ">{recipe.name}</h1>
-          <p className="text-gray-700 "><strong>Ingredients:</strong> {recipe.ingredients}</p>
-          <p className="text-gray-700 "><strong>Instructions:</strong> {recipe.instructions}</p>
-         
+        <div className="bg-white">
+          <h1 className="font-bold">{recipe.name}</h1>
+          <p className="text-gray-700"><strong>Ingredients:</strong> {recipe.ingredients}</p>
+          <p className="text-gray-700"><strong>Instructions:</strong> {recipe.instructions}</p>
         </div>
       )}
+      <button onClick={() => window.history.back()} className="back mt-4">Go Back</button>
     </div>
   );
 }

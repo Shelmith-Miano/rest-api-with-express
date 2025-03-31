@@ -47,7 +47,7 @@ input {
 }
 
 .add-btn {
-  width: 100%;
+  width: 80px;
   background: rgb(136, 37, 53);
   color: white;
   padding: 10px;
@@ -55,6 +55,7 @@ input {
   border-radius: 5px;
   cursor: pointer;
   margin-top: 10px;
+  text-align: center;
 }
 
 .add-btn:hover {
@@ -62,7 +63,7 @@ input {
 }
 
 .recipe-grid {
-  display: grid;
+  display: flex;
   gap: 20px;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 }
@@ -111,4 +112,9 @@ input {
 }
 
 /*details*/
-
+.details {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: rgb(243, 149, 165);
+}
