@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
-const sequelize = require('./database'); // Import database connection
-const Recipe = require('./models/Recipe'); // Import model
+const sequelize = require('./database'); 
+const Recipe = require('./models/Recipe'); 
 
 const app = express();
 const port = 4000;
@@ -52,7 +52,7 @@ app.patch('/recipes/:id', async (req, res) => {
   try {
     const recipe = await Recipe.findByPk(req.params.id);
     if (!recipe) return res.status(404).json({ error: 'Recipe not found' });
-    await recipe.update(req.body); // Update only provided fields
+    await recipe.update(req.body); // Updates specific field
     res.json(recipe);
   } catch (error) {
     res.status(500).json({ error: 'Failed to update recipe' });

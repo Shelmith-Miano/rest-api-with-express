@@ -118,3 +118,8 @@ input {
   padding: 20px;
   background-color: rgb(243, 149, 165);
 }
+
+.edit-btn {
+  background-color: rgb(92, 12, 26);
+  border-radius: 5px;
+}

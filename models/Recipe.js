@@ -14,8 +14,5 @@ const Recipe = sequelize.define('Recipe', {
     type: DataTypes.TEXT,
     allowNull: false,
   }
-}, {
-  timestamps: true, // Adds createdAt & updatedAt fields
-});
-
+}); 
 module.exports = Recipe;
